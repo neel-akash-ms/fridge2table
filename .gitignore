@@ -5,9 +5,6 @@ venv/
 .vscode
 
 # Django #
-fridge2table/static/
-main/static/
-website/static/
 /static
 .env
 *.log

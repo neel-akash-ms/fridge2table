@@ -1,6 +1,37 @@
 {% extends 'main/base.html' %} 
 {% block title %}Home Page{% endblock %}
 {% block content %}
-<h1>Fridge 2 Table</h1>
-<p>TODO: recommender.</p>
+<div class="row mb-5">
+  <div class="section-heading">What do you have in your pantry?</div>
+  <form action="/home" method="post" class="ingredients-form">
+    {% csrf_token %}
+    <div class="mb-2">
+      <label for="ingredients" class="form-label">Pick Ingredients</label><br>
+      <select name="ingredients" id="ingredients" class="form-select" size="3" multiple>
+        {% for i in ingredients %}
+          <option value="{{i.name}}">{{i.name}}</option>
+        {% endfor %}
+        <option value="ing1">default ing1</option>
+        <option value="ing2">default ing2</option>
+        <option value="ing3">default ing3</option>
+      </select>
+    </div>
+    <button type="submit" class="btn btn-sm btn-outline-primary">Submit</button>
+  </form>
+</div>
+<div class="row mt-5">
+  <div class="section-heading">Recipes to make</div>
+  {% for r in recipes %}
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">{{r.name}}</h5>
+        <h6 class="card-subtitle text-muted">{{r.description}}</h6>
+        <p class="mt-3">{{r.procedure}}</p>
+      </div>
+    </div>
+  {% empty %}
+    <p>No recipes found. Please search again.</p>
+  {% endfor %}
+</div>
+</div>
 {% endblock %}
