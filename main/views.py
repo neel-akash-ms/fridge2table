@@ -6,14 +6,30 @@ from .models import Ingredient
 
 @login_required(login_url="/login")
 def home(request):
-    ingredients = Ingredient.objects.all()
-    fake_recipes = []
-
+    ingredients = []
+    hiddenchosen = ""
     if request.method == 'POST':
-        print(dict(request.POST).get("ingredients", []))
+        q = "%" + request.POST.get("query", "") + "%"
+        hiddenchosen = request.POST.get("hiddenchosen", "")
+        if q == "%%":
+            return render(request, 'main/home.html', {"ingredients": ingredients, "hiddenchosen": hiddenchosen})
+        for i in Ingredient.objects.raw("SELECT id,name FROM main_ingredient WHERE name LIKE %s", [q]):
+            ingredients.append(i)
+
+    return render(request, 'main/home.html', {"ingredients": ingredients, "hiddenchosen": hiddenchosen})
+
+@login_required(login_url="/login")
+def results(request):
+    fake_recipes = []
+    if request.method == 'POST':
+        ingredients = []
+        chosen = request.POST.get("chosen", "")
+        if len(chosen) > 0:
+            ingredients = ingredients + chosen.split(",")
+        print(ingredients)
         fake_recipes.append({"id": 1, "name": "fake recipe", "description": "fake stuff", "procedure": "more fake shit to add"})
 
-    return render(request, 'main/home.html', {"ingredients": ingredients, "recipes": fake_recipes})
+    return render(request, 'main/results.html', {"recipes": fake_recipes})
 
 def sign_up(request):
     if request.method == 'POST':
