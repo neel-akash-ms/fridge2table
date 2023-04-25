@@ -1,14 +1,54 @@
 {% extends 'main/base.html' %} 
 {% block title %}Results{% endblock %}
 {% block content %}
-<div class="row mt-3">
-  <div class="section-heading">Recipes to make</div>
-  {% for r in recipes %}
-    <div class="card mt-1">
+<div class="row my-3">
+  <div class="section-heading">Recipes you can make right now</div>
+  {% for r in exact_recipes %}
+    <div class="card mt-1" id="{{r.recipe_id}}">
       <div class="card-body">
         <h5 class="card-title">{{r.name}}</h5>
         <h6 class="card-subtitle text-muted">{{r.description}}</h6>
-        <p class="mt-1">{{r.procedure}}</p>
+        <ul class="mt-1 list-group list-group-flush">
+          {% for s in r.steps %}
+          <li class="list-group-item">{{s}}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  {% empty %}
+    <p>No recipes found. Please search again.</p>
+  {% endfor %}
+</div>
+<div class="row my-3">
+  <div class="section-heading">Recipes to be easy on the cals</div>
+  {% for r in low_cal %}
+    <div class="card mt-1" id="{{r.recipe_id}}">
+      <div class="card-body">
+        <h5 class="card-title">{{r.name}}</h5>
+        <h6 class="card-subtitle text-muted">{{r.description}}</h6>
+        <ul class="mt-1 list-group list-group-flush">
+          {% for s in r.steps %}
+          <li class="list-group-item">{{s}}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  {% empty %}
+    <p>No recipes found. Please search again.</p>
+  {% endfor %}
+</div>
+<div class="row my-3">
+  <div class="section-heading">Recipes to do on the run</div>
+  {% for r in few_steps %}
+    <div class="card mt-1" id="{{r.recipe_id}}">
+      <div class="card-body">
+        <h5 class="card-title">{{r.name}}</h5>
+        <h6 class="card-subtitle text-muted">{{r.description}}</h6>
+        <ul class="mt-1 list-group list-group-flush">
+          {% for s in r.steps %}
+          <li class="list-group-item">{{s}}</li>
+          {% endfor %}
+        </ul>
       </div>
     </div>
   {% empty %}

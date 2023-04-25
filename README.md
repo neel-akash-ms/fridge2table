@@ -17,6 +17,9 @@
 3. Create a Database : `fridge-2-table` under Databases
 4. Enter all the DB Details in the `.env` file or `settings.py` file
 5. If migrations give error, trying changing password in the .env file to the one that you set when you started the pgAdmin application.
+### Core
+1. Place you csvs in `main/core/csv`
+2. Modify scripts in `main/core`
 ### Deployment
 1. Create a DO account and make a droplet
 2. Install the repo as usual

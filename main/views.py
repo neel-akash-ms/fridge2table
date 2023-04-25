@@ -3,6 +3,7 @@ from .forms import RegisterForm
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from .models import Ingredient
+from .core.non_personal import non_personalized_rec
 
 @login_required(login_url="/login")
 def home(request):
@@ -20,16 +21,20 @@ def home(request):
 
 @login_required(login_url="/login")
 def results(request):
-    fake_recipes = []
+    recipes = {
+        'exact_recipes': [],
+        'low_cal': [],
+        'few_steps': [],
+        'order_by_time': []
+    }
     if request.method == 'POST':
         ingredients = []
         chosen = request.POST.get("chosen", "")
         if len(chosen) > 0:
             ingredients = ingredients + chosen.split(",")
-        print(ingredients)
-        fake_recipes.append({"id": 1, "name": "fake recipe", "description": "fake stuff", "procedure": "more fake shit to add"})
+        recipes = non_personalized_rec(ingredients)
 
-    return render(request, 'main/results.html', {"recipes": fake_recipes})
+    return render(request, 'main/results.html', recipes)
 
 def sign_up(request):
     if request.method == 'POST':
