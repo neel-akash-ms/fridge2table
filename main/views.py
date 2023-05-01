@@ -2,39 +2,43 @@ from django.shortcuts import render, redirect
 from .forms import RegisterForm
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
-from .models import Ingredient
-from .core.non_personal import non_personalized_rec
+from .models import Ingredient, Recipe
+from .core.recommender import non_personalized_rec, personalized_rec
 
 @login_required(login_url="/login")
 def home(request):
     ingredients = []
-    hiddenchosen = ""
+    recipes = []
+    inghidden = ""
+    rechidden = ""
     if request.method == 'POST':
-        q = "%" + request.POST.get("query", "") + "%"
-        hiddenchosen = request.POST.get("hiddenchosen", "")
-        if q == "%%":
-            return render(request, 'main/home.html', {"ingredients": ingredients, "hiddenchosen": hiddenchosen})
-        for i in Ingredient.objects.raw("SELECT id,name FROM main_ingredient WHERE name LIKE %s", [q]):
-            ingredients.append(i)
+        iq = "%" + request.POST.get("ingquery", "") + "%"
+        rq = "%" + request.POST.get("recquery", "") + "%"
+        inghidden = request.POST.get("inghidden", "")
+        rechidden = request.POST.get("rechidden", "")
+        if iq != "%%":
+            for i in Ingredient.objects.raw("SELECT id,name FROM main_ingredient WHERE name LIKE %s limit 5", [iq]):
+                ingredients.append(i)
+        if rq != "%%":
+            for r in Recipe.objects.raw("SELECT id,recipeid,recipename FROM main_recipe WHERE recipename LIKE %s limit 5", [rq]):
+                recipes.append(r)
 
-    return render(request, 'main/home.html', {"ingredients": ingredients, "hiddenchosen": hiddenchosen})
+    return render(request, 'main/home.html', {"ingredients": ingredients, "recipes": recipes, "inghidden": inghidden, "rechidden": rechidden})
 
 @login_required(login_url="/login")
 def results(request):
-    recipes = {
-        'exact_recipes': [],
-        'low_cal': [],
-        'few_steps': [],
-        'order_by_time': []
-    }
+    results = {'res': []}
     if request.method == 'POST':
-        ingredients = []
-        chosen = request.POST.get("chosen", "")
-        if len(chosen) > 0:
-            ingredients = ingredients + chosen.split(",")
-        recipes = non_personalized_rec(ingredients)
+        ingredients = [] if len(request.POST.get("ingchosen", "")) == 0 else request.POST.get("ingchosen", "").split(",")
+        recipe_ids = [] if len(request.POST.get("recidchosen", "")) == 0 else [int(i) for i in request.POST.get("recidchosen", "").split(",")]
+        tags = dict(request.POST).get("tagchosen", [])
+        if len(recipe_ids):
+            results = personalized_rec(ingredients, recipe_ids)
+        else:
+            results = non_personalized_rec(ingredients, recipe_ids, tags, option=4)
+        print(results)
 
-    return render(request, 'main/results.html', recipes)
+    return render(request, 'main/results.html', results)
 
 def sign_up(request):
     if request.method == 'POST':
