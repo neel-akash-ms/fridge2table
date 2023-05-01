@@ -18,11 +18,15 @@
             <ul class="navbar-nav">
               <li class="nav-item">
                 <a class="nav-link logo" href="/home">Fridge2Table</a>
-              </li>
+              </li>              
             </ul>
           </div>
           <div>
             <ul class="navbar-nav">
+              <li class="nav-item">
+                <a class="nav-link" href="/about">About Us</a>
+              </li>
+              <span class="navbar-text me-1"> |</span>
               {% if user.is_authenticated %}
               <span class="navbar-text">Logged in as <b>{{user.username}}</b> | </span>
               <li class="nav-item">

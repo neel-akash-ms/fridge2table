@@ -40,6 +40,9 @@ def results(request):
 
     return render(request, 'main/results.html', results)
 
+def about(request):
+    return render(request, 'main/about.html', {})
+
 def sign_up(request):
     if request.method == 'POST':
         form = RegisterForm(request.POST)
