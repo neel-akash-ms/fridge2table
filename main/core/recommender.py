@@ -156,6 +156,7 @@ def personalized_rec(input_ingredients, user_previous_liked):
                     all_items.extend(item_ans)
     # all_items=[x for x in all_items if x != []]
     all_items = list(itertools.chain(*all_items))
+    selected_rows = df.loc[df['recipe_id'].isin(all_items)]
     subset_df = df[df['recipe_id'].isin(recipe_ids)]
     subset_df['similarity'] = subset_df['ingredients_list'].apply(lambda x: jaccard_similarity(x, input_ingredients))
     subset_df = subset_df.sort_values(by='similarity',ascending=False)
@@ -165,9 +166,11 @@ def personalized_rec(input_ingredients, user_previous_liked):
     subset_df['similarity_tags'] = subset_df['tags_list'].apply(lambda x: jaccard_similarity(x,tags_list))
     subset_df = subset_df.sort_values(by='similarity_tags',ascending=False)
     ans = {}
-    ob = subset_df[0:5].to_dict(orient='records')
-    for i in range(len(ob)):
-        ob[i]['tags'] = ob[i]['tags_list']
-        ob[i]['steps'] = ob[i]['steps_list']
-    ans['res'] = ob
+    subset_df['tags'] = subset_df['tags_list']
+    subset_df['steps'] = subset_df['steps_list']
+    selected_rows['tags'] = selected_rows['tags_list']
+    selected_rows['steps'] = selected_rows['steps_list']
+    ob1 = subset_df[0:5].to_dict(orient='records')
+    ob2 = selected_rows[0:5].to_dict(orient='records')
+    ans['res'] = ob1+ob2
     return ans
