@@ -31,11 +31,15 @@ def results(request):
     if request.method == 'POST':
         ingredients = [] if len(request.POST.get("ingchosen", "")) == 0 else request.POST.get("ingchosen", "").split(",")
         recipe_ids = [] if len(request.POST.get("recidchosen", "")) == 0 else [int(i) for i in request.POST.get("recidchosen", "").split(",")]
-        tags = dict(request.POST).get("tagchosen", [])
-        if len(recipe_ids):
+        tags = dict(request.POST).get("tagchosen", [""])
+        if tags[0] == "":
+            tags = []
+        if len(ingredients) and len(recipe_ids):
             results = personalized_rec(ingredients, recipe_ids)
-        else:
+        if len(ingredients) and len(recipe_ids) == 0:
             results = non_personalized_rec(ingredients, recipe_ids, tags, option=4)
+        else:
+            return render(request, 'main/results.html', results)
         print(results)
 
     return render(request, 'main/results.html', results)

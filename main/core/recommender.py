@@ -6,8 +6,8 @@ import pickle
 import itertools
 
 def non_personalized_rec(input_ingredients, recipe_liked, tags, option):
-    merged_df = pd.read_csv('main/core/csv/merged_df.csv', usecols=['name','recipe_id','minutes','contributor_id','submitted','tags','nutrition','n_steps','steps','description','ingredients','n_ingredients','time_to_cook','rating'])
-    ing_rec = pd.read_csv('main/core/csv/ing_rec2.csv', usecols=['ingredient','recipes'])
+    merged_df = pd.read_csv('main/core/csv/dataset.csv', usecols=['name','recipe_id','minutes','tags','n_steps','steps','ingredients','n_ingredients','rating'])
+    ing_rec = pd.read_csv('main/core/csv/ing_rec.csv', usecols=['ingredient','recipes'])
 
     def str_to_list(l):
         try:
@@ -53,7 +53,7 @@ def non_personalized_rec(input_ingredients, recipe_liked, tags, option):
         return df_low_steps[0:10]
     def order_by_time(r_with_other_ing):
         df_recepies = merged_df[merged_df['recipe_id'].isin(r_with_other_ing)]
-        df_low_time = df_recepies.sort_values(by=['time_to_cook', 'rating'], ascending=[True, False])
+        df_low_time = df_recepies.sort_values(by=['minutes', 'rating'], ascending=[True, False])
         return df_low_time[0:10]
 
 
@@ -71,8 +71,8 @@ def non_personalized_rec(input_ingredients, recipe_liked, tags, option):
 
 
 def personalized_rec(input_ingredients, user_previous_liked):
-    df = pd.read_csv('main/core/csv/merged_df.csv', usecols=['name','recipe_id','minutes','contributor_id','submitted','tags','nutrition','n_steps','steps','description','ingredients','n_ingredients','time_to_cook','rating'])
-    df_ingredients = pd.read_csv('main/core/csv/ing_rec2.csv', usecols=['ingredient','recipes'])
+    df = pd.read_csv('main/core/csv/dataset.csv', usecols=['name','recipe_id','minutes','tags','n_steps','steps','ingredients','n_ingredients','rating'])
+    df_ingredients = pd.read_csv('main/core/csv/ing_rec.csv', usecols=['ingredient','recipes'])
 
     def str_to_list(l):
         try:
@@ -81,15 +81,15 @@ def personalized_rec(input_ingredients, user_previous_liked):
             return []
 
     def create_index(df):
-       inverted_index = {} 
-       count=0
-       for recipe in df['ingredients_list']:
-        for ing in recipe:
-            if ing not in inverted_index:  
-               inverted_index[ing]=[] 
-            inverted_index[ing].append(df['recipe_id'][count])
-        count+=1
-       return inverted_index
+        inverted_index = {} 
+        count = 0
+        for recipe in df['ingredients_list']:
+            for ing in recipe:
+                if ing not in inverted_index:  
+                    inverted_index[ing]=[] 
+                inverted_index[ing].append(df['recipe_id'][count])
+            count += 1
+        return inverted_index
 
     def find_intersection(lists):
         sets = [set(lst) for lst in lists]
@@ -98,8 +98,8 @@ def personalized_rec(input_ingredients, user_previous_liked):
         return result
 
     def boolean_retrieval(input_ingredients):
-        inverted_index=create_index(df)
-        word_doc=[]
+        inverted_index = create_index(df)
+        word_doc = []
         for w in input_ingredients:
             if w in inverted_index:
                word_doc.append(list(inverted_index[w]))
@@ -113,6 +113,7 @@ def personalized_rec(input_ingredients, user_previous_liked):
         union = set1.union(set2)
         similarity = len(intersection) / len(union)
         return similarity
+
     def item_item(each_liked_id):
         ingredients_dict = {}
         for i, ingredient in enumerate(df_ingredients['ingredient']):
@@ -170,7 +171,7 @@ def personalized_rec(input_ingredients, user_previous_liked):
     subset_df['steps'] = subset_df['steps_list']
     selected_rows['tags'] = selected_rows['tags_list']
     selected_rows['steps'] = selected_rows['steps_list']
-    ob1 = subset_df[0:5].to_dict(orient='records')
-    ob2 = selected_rows[0:5].to_dict(orient='records')
-    ans['res'] = ob1+ob2
+    jacard_ob = subset_df[0:5].to_dict(orient='records')
+    iicf_ob2 = selected_rows[0:5].to_dict(orient='records')
+    ans['res'] = jacard_ob + iicf_ob2
     return ans
